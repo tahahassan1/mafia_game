@@ -14,7 +14,6 @@ Flutter (Android first), `flutter_bloc` (Cubit only), `get_it`, `equatable`, `sh
 - Arabic app title and Android label: مافيا. Android only; never run `flutter create`.
 - Cairo is bundled at 400, 600, and 700. Display styles use 700 instead of the design's unavailable 900; section headings use 600, bodyStrong uses 700.
 - Adaptive icon: canvas `#0B0B0B`, original `logo.png` foreground, 25% inset. Never redraw, recolor, crop, or stretch the logo.
-- Keep the P0 placeholder until P2.
 - Keep `kotlin.incremental=false`: Kotlin's incremental cache fails across the C: pub cache and E: project drives.
 - Include project `.agents/` skills and the Gradle wrapper scripts/JAR in the repository (user approved).
 - Documentation gaps remain unresolved: `docs/TASKS.md` references missing `docs/ARCHITECTURE.md` section 10 and `docs/DESIGN_STYLE.md` section 7.1. Ask before defining those sections.
@@ -23,11 +22,26 @@ Flutter (Android first), `flutter_bloc` (Cubit only), `get_it`, `equatable`, `sh
 - Discussion timer defaults to 3 minutes and is adjustable from 00:01 to 99:59.
 - Timer expiry uses Flutter haptic feedback plus a small Android method channel (`mafia/timer_feedback`) to play the system notification sound through `RingtoneManager`. The native bridge is user-approved because Flutter's `SystemSoundType.alert` is ignored on Android. No audio assets or packages are added.
 
+## Final implementation decisions
+- Players -> Setup -> Handoff/Reveal -> Timer -> confirmed exit to Players. Placeholder screens have been removed. Existing names and setup choices survive a round exit; a process restart restores names only.
+- `PlayersStore` keeps `loadNames()`/`saveNames(List<String>)`, backed by `SharedPreferencesAsync` (Android DataStore), with only `player_names` stored. Writes are queued snapshots. A failed save keeps the in-memory edit, reports through a Cubit flag/`BlocListener`, and retries the complete list on the next accepted name change.
+- `RoundExitScope` protects Handoff, Reveal and Timer. Cancel keeps the current round; confirm removes private content, clears `GameSession`, and returns to the existing Players route. Back on the host sheet only dismisses the sheet.
+- `RevealCubit` and `TimerCubit` are factories. The injected clock is `DateTime Function()`. `TimerCubit` owns timestamp math; the Timer widget owns animation, platform feedback and wake lock.
+- Approved animations: Players empty state uses `mafia_loading.json`; Setup has none; Handoff and Reveal share that same file, size, position and colors for every role; Timer uses `mafia_clock.json`; host sheet has none. No separate in-app static logo or role-specific artwork.
+- No direct `intl` dependency was needed or added. Timer duration uses steppers; fixed Western LTR `mm:ss` formatting stays in `strings_ar.dart`.
+- Spy, hunter and gambler teams retain their catalog `TODO: confirm` markers. Do not implement abilities or change these teams without a product decision.
+- P6 results and remaining limitations are recorded in `docs/P6_HANDOFF.md`. Verification artifacts under `build/` are ignored and are not required to run the app or tests.
+
 ## Commands
 - Run: `flutter run`
 - Analyze: `flutter analyze` (must be clean)
 - Test: `flutter test`
 - Format: `dart format .`
+- Check formatting without edits: `dart format --output=none --set-exit-if-changed .`
+- Build Android debug APK: `flutter build apk --debug` (output: `build/app/outputs/flutter-apk/app-debug.apk`)
+- Android smoke testing: check devices first with `& 'E:\Programs\Android\platform-tools\adb.exe' devices`; select the intended device explicitly (last tested: `emulator-5556`, API 36). ADB is not on PATH.
+- Tested command variant: `flutter test --timeout 45s`. All dependency versions above remain pinned; SDK platform/build-tools are Android 36 / 36.0.0.
+- Release signing is still the Flutter template's debug signing; no production-signed release has been verified. `flutter doctor -v` also reports some Android licenses unaccepted; do not accept licenses automatically.
 
 ## Hard rules
 1. `features/*/domain` is pure Dart: no Flutter imports, no `BuildContext`.
