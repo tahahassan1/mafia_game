@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/app_locale.dart';
+import 'core/di.dart';
 import 'core/strings_ar.dart';
 import 'core/theme.dart';
-import 'features/placeholder/placeholder_screen.dart';
+import 'features/setup/setup_cubit.dart';
+import 'features/setup/ui/players_screen.dart';
 
 class MafiaApp extends StatelessWidget {
   const MafiaApp({super.key, this.home});
@@ -33,7 +36,12 @@ class MafiaApp extends StatelessWidget {
         value: AppSystemUi.overlay,
         child: child ?? const SizedBox.shrink(),
       ),
-      home: home ?? const PlaceholderScreen(),
+      home:
+          home ??
+          BlocProvider(
+            create: (_) => getIt<SetupCubit>()..loadPlayers(),
+            child: const PlayersScreen(),
+          ),
     );
   }
 }

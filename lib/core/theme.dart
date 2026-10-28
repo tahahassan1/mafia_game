@@ -55,6 +55,13 @@ abstract final class AppSizes {
   static const double lottieDefault = 160;
   static const double lottiePlaceholder = 180;
   static const double contentMaxWidth = 480;
+  static const double compactViewportHeight = 400;
+  static const double appBarTitleHeight = 34;
+  static const double emptyStateLottie = 120;
+}
+
+abstract final class AppMotion {
+  static const Duration press = Duration(milliseconds: 120);
 }
 
 abstract final class AppShadows {
@@ -226,11 +233,66 @@ ThemeData buildAppTheme() {
     canvasColor: AppColors.canvas,
     cardColor: AppColors.surface,
     dividerColor: AppColors.divider,
+    dividerTheme: const DividerThemeData(
+      color: AppColors.divider,
+      thickness: AppBorders.quiet,
+    ),
     textTheme: AppStyles.textTheme,
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        minimumSize: const Size(
+          AppSizes.minTouchTarget,
+          AppSizes.minTouchTarget,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadii.controlBorder,
+        ),
+      ),
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surface,
+      labelStyle: AppStyles.supporting,
+      errorMaxLines: 3,
+      contentPadding: EdgeInsets.all(AppSpacing.sm),
+      border: OutlineInputBorder(
+        borderRadius: AppRadii.controlBorder,
+        borderSide: BorderSide(
+          color: AppColors.divider,
+          width: AppBorders.quiet,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: AppRadii.controlBorder,
+        borderSide: BorderSide(
+          color: AppColors.divider,
+          width: AppBorders.quiet,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: AppRadii.controlBorder,
+        borderSide: BorderSide(color: AppColors.ink, width: AppBorders.strong),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: AppRadii.controlBorder,
+        borderSide: BorderSide(
+          color: AppColors.danger,
+          width: AppBorders.quiet,
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: AppRadii.controlBorder,
+        borderSide: BorderSide(
+          color: AppColors.danger,
+          width: AppBorders.strong,
+        ),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.canvas,
       foregroundColor: AppColors.ink,
       elevation: 0,
+      scrolledUnderElevation: 0,
       centerTitle: false,
     ),
   );
