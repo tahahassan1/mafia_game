@@ -16,6 +16,8 @@ class SetupState extends Equatable {
     this.nameError,
     this.editingIndex,
     this.hasDealt = false,
+    this.namesSaveFailed = false,
+    this.namesLoadFailed = false,
   });
 
   final List<String> players;
@@ -29,6 +31,8 @@ class SetupState extends Equatable {
   final ValidationReason? nameError;
   final int? editingIndex;
   final bool hasDealt;
+  final bool namesSaveFailed;
+  final bool namesLoadFailed;
 
   bool get canAdvance => playersValidation is Valid;
   bool get canDeal => validation is Valid && !hasDealt;
@@ -49,6 +53,8 @@ class SetupState extends Equatable {
     bool clearNameError = false,
     bool clearEditing = false,
     bool? hasDealt,
+    bool? namesSaveFailed,
+    bool? namesLoadFailed,
   }) => SetupState(
     players: players ?? this.players,
     mafiaCount: mafiaCount ?? this.mafiaCount,
@@ -61,6 +67,8 @@ class SetupState extends Equatable {
     nameError: clearNameError ? null : nameError ?? this.nameError,
     editingIndex: clearEditing ? null : editingIndex ?? this.editingIndex,
     hasDealt: hasDealt ?? this.hasDealt,
+    namesSaveFailed: namesSaveFailed ?? this.namesSaveFailed,
+    namesLoadFailed: namesLoadFailed ?? this.namesLoadFailed,
   );
 
   @override
@@ -76,5 +84,7 @@ class SetupState extends Equatable {
     nameError,
     editingIndex,
     hasDealt,
+    namesSaveFailed,
+    namesLoadFailed,
   ];
 }

@@ -41,6 +41,13 @@ abstract final class AppStrings {
   static const String hostRoles = 'عرض الأدوار';
   static const String hostLongPressHint = 'اضغط مطولًا';
   static const String hostAutoClose = 'يغلق عرض الأدوار تلقائيًا';
+  static const String namesSaveFailed = 'تعذر حفظ الأسماء. سنحاول بعد التعديل';
+  static const String namesLoadFailed = 'تعذر تحميل الأسماء المحفوظة';
+  static const String exitRoundTitle = 'الخروج هيمسح توزيع الأدوار';
+  static const String exitRoundDescription =
+      'هترجع لقائمة اللاعبين والأسماء هتفضل موجودة';
+  static const String keepRound = 'رجوع';
+  static const String exitRound = 'خروج';
 
   static String timerDigits(int seconds) =>
       '${(seconds ~/ Duration.secondsPerMinute).toString().padLeft(2, '0')}:'

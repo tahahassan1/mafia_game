@@ -42,7 +42,9 @@ class AppPageLayout extends StatelessWidget {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxHeight < AppSizes.compactViewportHeight) {
+                if (constraints.maxHeight <
+                    MediaQuery.textScalerOf(context)
+                        .scale(AppSizes.compactViewportHeight)) {
                   return SingleChildScrollView(
                     child: Column(
                       children: [

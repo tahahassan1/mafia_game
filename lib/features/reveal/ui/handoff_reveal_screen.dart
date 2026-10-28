@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/di.dart';
 import '../../../core/strings_ar.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/round_exit_scope.dart';
+import '../../game/domain/game_session.dart';
 import '../../timer/timer_cubit.dart';
 import '../../timer/ui/timer_screen.dart';
 import '../reveal_cubit.dart';
@@ -50,8 +52,9 @@ class _HandoffRevealScreenState extends State<HandoffRevealScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: false,
+  Widget build(BuildContext context) => RoundExitScope(
+    onConfirmed: () => getIt<GameSession>().clear(),
+    canRequestExit: () => !_openingTimer,
     child: Scaffold(
       body: BlocBuilder<RevealCubit, RevealState>(
         builder: (context, state) {

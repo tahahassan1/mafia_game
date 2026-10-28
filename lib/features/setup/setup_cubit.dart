@@ -38,9 +38,20 @@ class SetupCubit extends Cubit<SetupState> {
 
   Future<void> loadPlayers() async {
     final version = _playersVersion;
-    final names = await _store.loadNames();
-    if (isClosed || version != _playersVersion) return;
-    _apply(state.copyWith(players: List.unmodifiable(names)));
+    try {
+      final names = await _store.loadNames();
+      if (isClosed || version != _playersVersion) return;
+      _apply(
+        state.copyWith(
+          players: List.unmodifiable(names),
+          namesLoadFailed: false,
+        ),
+      );
+    } catch (_) {
+      if (!isClosed && version == _playersVersion) {
+        emit(state.copyWith(namesLoadFailed: true, namesSaveFailed: false));
+      }
+    }
   }
 
   void startEditing(int index) {
@@ -87,9 +98,10 @@ class SetupCubit extends Cubit<SetupState> {
         players: List.unmodifiable(players),
         clearEditing: true,
         clearNameError: true,
+        namesSaveFailed: false,
       ),
     );
-    await _store.saveNames(state.players);
+    await _saveNames(state.players, _playersVersion);
     return true;
   }
 
@@ -106,9 +118,20 @@ class SetupCubit extends Cubit<SetupState> {
             : editingIndex,
         clearEditing: editingIndex == index,
         clearNameError: true,
+        namesSaveFailed: false,
       ),
     );
-    await _store.saveNames(state.players);
+    await _saveNames(state.players, _playersVersion);
+  }
+
+  Future<void> _saveNames(List<String> names, int version) async {
+    try {
+      await _store.saveNames(names);
+    } catch (_) {
+      if (!isClosed && version == _playersVersion) {
+        emit(state.copyWith(namesSaveFailed: true, namesLoadFailed: false));
+      }
+    }
   }
 
   void increaseMafia() {

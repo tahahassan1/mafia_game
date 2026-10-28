@@ -238,6 +238,7 @@ ThemeData buildAppTheme() {
     canvasColor: AppColors.canvas,
     cardColor: AppColors.surface,
     dividerColor: AppColors.divider,
+    snackBarTheme: const SnackBarThemeData(elevation: 0),
     dividerTheme: const DividerThemeData(
       color: AppColors.divider,
       thickness: AppBorders.quiet,

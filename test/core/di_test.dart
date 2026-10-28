@@ -12,6 +12,8 @@ import 'package:mafia/features/setup/setup_cubit.dart';
 import 'package:mafia/features/timer/timer_cubit.dart';
 import 'package:mafia/features/timer/timer_state.dart';
 
+import '../support/memory_players_store.dart';
+
 void main() {
   setUp(() => getIt.reset());
   tearDown(() => getIt.reset());
@@ -33,6 +35,8 @@ void main() {
 
   test('setup cubits are factories sharing the names store', () async {
     configureDependencies();
+    await getIt.unregister<PlayersStore>();
+    getIt.registerLazySingleton<PlayersStore>(MemoryPlayersStore.new);
     final first = getIt<SetupCubit>();
     final second = getIt<SetupCubit>();
     expect(first, isNot(same(second)));

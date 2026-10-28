@@ -12,6 +12,7 @@ import '../../../core/strings_ar.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_lottie.dart';
 import '../../../core/widgets/app_page_layout.dart';
+import '../../../core/widgets/round_exit_scope.dart';
 import '../../game/domain/game_session.dart';
 import '../data/timer_feedback.dart';
 import '../timer_cubit.dart';
@@ -135,8 +136,11 @@ class _TimerScreenState extends State<TimerScreen>
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: false,
+  Widget build(BuildContext context) => RoundExitScope(
+    onConfirmed: () {
+      context.read<TimerCubit>().reset();
+      getIt<GameSession>().clear();
+    },
     child: BlocListener<TimerCubit, TimerState>(
       listenWhen: (previous, current) =>
           previous.runtimeType != current.runtimeType,

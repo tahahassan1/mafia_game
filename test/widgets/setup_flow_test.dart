@@ -9,7 +9,6 @@ import 'package:mafia/core/strings_ar.dart';
 import 'package:mafia/core/widgets/app_button.dart';
 import 'package:mafia/core/widgets/app_lottie.dart';
 import 'package:mafia/core/widgets/role_toggle_card.dart';
-import 'package:mafia/features/game/data/players_store.dart';
 import 'package:mafia/features/game/domain/game_session.dart';
 import 'package:mafia/features/game/domain/validation_reason.dart';
 import 'package:mafia/features/reveal/reveal_cubit.dart';
@@ -19,11 +18,13 @@ import 'package:mafia/features/setup/setup_cubit.dart';
 import 'package:mafia/features/setup/ui/game_setup_screen.dart';
 import 'package:mafia/features/setup/ui/players_screen.dart';
 
+import '../support/memory_players_store.dart';
+
 void main() {
   testWidgets(
     'empty animation hides after adding; bad names show inline errors',
     (tester) async {
-      final cubit = SetupCubit(PlayersStore(), GameSession(), Random(1));
+      final cubit = SetupCubit(MemoryPlayersStore(), GameSession(), Random(1));
       addTearDown(cubit.close);
       await _pumpPlayers(tester, cubit);
       expect(find.byType(AppLottie), findsOneWidget);
@@ -55,7 +56,7 @@ void main() {
   testWidgets(
     'edit, delete, configure, validate, and deal to a neutral handoff',
     (tester) async {
-      final store = PlayersStore();
+      final store = MemoryPlayersStore();
       final session = GameSession();
       getIt.registerFactory<RevealCubit>(() => RevealCubit(session));
       addTearDown(getIt.reset);
@@ -108,6 +109,9 @@ void main() {
       expect(find.byType(BackButton), findsNothing);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
+      expect(find.text(AppStrings.exitRoundTitle), findsOneWidget);
+      await tester.tap(find.text(AppStrings.keepRound));
+      await tester.pumpAndSettle();
       expect(find.byType(HandoffRevealScreen), findsOneWidget);
       expect(cubit.state.players, ['محمد', 'علي', 'حسن', 'خالد']);
       expect(tester.takeException(), isNull);
@@ -117,7 +121,7 @@ void main() {
   testWidgets('removing an earlier row preserves an unfinished edit', (
     tester,
   ) async {
-    final store = PlayersStore();
+    final store = MemoryPlayersStore();
     await store.saveNames(['أحمد', 'محمد', 'علي', 'حسن']);
     final cubit = SetupCubit(store, GameSession(), Random(1));
     addTearDown(cubit.close);
@@ -143,7 +147,7 @@ void main() {
         testWidgets(
           'width $width scale $scale keyboard $keyboard supports long names and setup',
           (tester) async {
-            final store = PlayersStore();
+            final store = MemoryPlayersStore();
             await store.saveNames([
               'عبد الرحمن محمد أحمد عبد الله الاسم الطويل',
               'محمد',
@@ -189,7 +193,7 @@ void main() {
   testWidgets(
     'enabled role cards use both outline weight and switch position',
     (tester) async {
-      final store = PlayersStore();
+      final store = MemoryPlayersStore();
       await store.saveNames(['أحمد', 'محمد', 'علي', 'حسن']);
       final cubit = SetupCubit(store, GameSession(), Random(1));
       addTearDown(cubit.close);

@@ -83,6 +83,9 @@ void main() {
     );
     await tester.binding.handlePopRoute();
     await tester.pump();
+    expect(find.text(AppStrings.exitRoundTitle), findsOneWidget);
+    await tester.tap(find.text(AppStrings.keepRound));
+    await tester.pumpAndSettle();
     expect(find.byType(TimerScreen), findsOneWidget);
     expect(cubit.state, isA<TimerRunning>());
     await tester.tap(find.text(AppStrings.resetTimer));

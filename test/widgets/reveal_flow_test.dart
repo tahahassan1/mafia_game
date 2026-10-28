@@ -61,6 +61,7 @@ void main() {
       expect(find.byType(HandoffPrompt), findsNothing);
       await tester.binding.handlePopRoute();
       await tester.pump();
+      await _cancelExit(tester);
       expect(cubit.state.currentIndex, index);
       expect(find.text(assignment.role.descriptionAr), findsOneWidget);
 
@@ -80,6 +81,7 @@ void main() {
       if (index < assignments.length - 1) {
         await tester.binding.handlePopRoute();
         await tester.pump();
+        await _cancelExit(tester);
         expect(cubit.state.currentIndex, index + 1);
         expect(find.text(assignments[index + 1].player.name), findsOneWidget);
       }
@@ -90,6 +92,7 @@ void main() {
     expect(find.byType(HandoffRevealScreen, skipOffstage: false), findsNothing);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
+    await _cancelExit(tester);
     expect(find.byType(TimerScreen), findsOneWidget);
     _expectNoRoles();
     expect(
@@ -341,3 +344,9 @@ void _expectReachableAction(WidgetTester tester, String label, double inset) {
 
 double _contentScrollOffset(WidgetTester tester) =>
     tester.state<ScrollableState>(find.byType(Scrollable).last).position.pixels;
+
+Future<void> _cancelExit(WidgetTester tester) async {
+  expect(find.text(AppStrings.exitRoundTitle), findsOneWidget);
+  await tester.tap(find.text(AppStrings.keepRound));
+  await tester.pumpAndSettle();
+}

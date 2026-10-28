@@ -54,7 +54,7 @@ class _PlayerNameEditorState extends State<PlayerNameEditor> {
     if (!mounted) return;
     setState(() => _submitting = false);
     if (accepted) _controller.clear();
-    _focusNode.requestFocus();
+    if (ModalRoute.of(context)?.isCurrent ?? true) _focusNode.requestFocus();
   }
 
   @override

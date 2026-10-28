@@ -14,12 +14,15 @@ import 'package:mafia/features/roles/domain/team.dart';
 import 'package:mafia/features/setup/setup_cubit.dart';
 import 'package:mafia/features/setup/setup_state.dart';
 
+import '../support/controlled_players_store.dart';
+import '../support/memory_players_store.dart';
+
 void main() {
   late PlayersStore store;
   late GameSession session;
 
   setUp(() {
-    store = PlayersStore();
+    store = MemoryPlayersStore();
     session = GameSession();
   });
 
@@ -266,12 +269,129 @@ void main() {
     deferred.completer.complete([]);
     await pending;
   });
+
+  test('save failure keeps edits usable and retries the full list on the next change', () async {
+    final controlled = ControlledPlayersStore()..failWrites = true;
+    final cubit = SetupCubit(controlled, session, Random(1));
+    addTearDown(cubit.close);
+    expect(await cubit.submitPlayer('أحمد'), isTrue);
+    expect(cubit.state.players, ['أحمد']);
+    expect(cubit.state.namesSaveFailed, isTrue);
+    controlled.failWrites = false;
+    await cubit.submitPlayer('منى');
+    expect(cubit.state.namesSaveFailed, isFalse);
+    expect(await controlled.loadNames(), ['أحمد', 'منى']);
+    expect(controlled.attempts, [
+      ['أحمد'],
+      ['أحمد', 'منى'],
+    ]);
+  });
+
+  blocTest<SetupCubit, SetupState>(
+    'each failed retry emits a new false-to-true failure transition',
+    build: () => SetupCubit(
+      ControlledPlayersStore()..failWrites = true,
+      session,
+      Random(1),
+    ),
+    act: (cubit) async {
+      await cubit.submitPlayer('أحمد');
+      await cubit.submitPlayer('منى');
+    },
+    expect: () => [
+      isA<SetupState>().having(
+        (s) => s.namesSaveFailed,
+        'first attempt',
+        false,
+      ),
+      isA<SetupState>().having((s) => s.namesSaveFailed, 'first failed', true),
+      isA<SetupState>().having((s) => s.namesSaveFailed, 'retry', false),
+      isA<SetupState>().having((s) => s.namesSaveFailed, 'retry failed', true),
+    ],
+  );
+
+  test(
+    'failed delete keeps the current list and a later edit retries it',
+    () async {
+      final controlled = ControlledPlayersStore();
+      await controlled.saveNames(['أحمد', 'منى']);
+      final cubit = SetupCubit(controlled, session, Random(1));
+      addTearDown(cubit.close);
+      await cubit.loadPlayers();
+      controlled.failWrites = true;
+      await cubit.removePlayer(0);
+      expect(cubit.state.players, ['منى']);
+      expect(cubit.state.namesSaveFailed, isTrue);
+      controlled.failWrites = false;
+      await cubit.submitPlayer('علي');
+      expect(await controlled.loadNames(), ['منى', 'علي']);
+    },
+  );
+
+  test('a stale save error cannot overwrite a newer successful save', () async {
+    final controlled = ControlledPlayersStore()..deferWrites = true;
+    final cubit = SetupCubit(controlled, session, Random(1));
+    addTearDown(cubit.close);
+    final old = cubit.submitPlayer('أحمد');
+    final latest = cubit.submitPlayer('منى');
+    controlled.pending[1].complete();
+    await latest;
+    controlled.pending[0].completeError(StateError('old'));
+    await old;
+    expect(cubit.state.players, ['أحمد', 'منى']);
+    expect(cubit.state.namesSaveFailed, isFalse);
+  });
+
+  test('save failure after close is handled without an emission', () async {
+    final controlled = ControlledPlayersStore()..deferWrites = true;
+    final cubit = SetupCubit(controlled, session, Random(1));
+    final pending = cubit.submitPlayer('أحمد');
+    await cubit.close();
+    controlled.pending.single.completeError(StateError('late'));
+    expect(await pending, isTrue);
+    expect(cubit.state.namesSaveFailed, isFalse);
+  });
+
+  test(
+    'load failure is explicit, retains names, and clears after recovery',
+    () async {
+      final controlled = ControlledPlayersStore();
+      final cubit = SetupCubit(controlled, session, Random(1));
+      addTearDown(cubit.close);
+      await cubit.submitPlayer('أحمد');
+      controlled.failReads = true;
+      await cubit.loadPlayers();
+      expect(cubit.state.players, ['أحمد']);
+      expect(cubit.state.namesLoadFailed, isTrue);
+      controlled.failReads = false;
+      await cubit.loadPlayers();
+      expect(cubit.state.namesLoadFailed, isFalse);
+      expect(cubit.state.copyWith(namesSaveFailed: true), isNot(cubit.state));
+      expect(cubit.state.copyWith(namesLoadFailed: true), isNot(cubit.state));
+    },
+  );
+
+  test(
+    'late failed load cannot replace newer edits or emit after close',
+    () async {
+      final deferred = DeferredPlayersStore();
+      final cubit = SetupCubit(deferred, session, Random(1));
+      final pending = cubit.loadPlayers();
+      await cubit.submitPlayer('new');
+      deferred.completer.completeError(StateError('old read'));
+      await pending;
+      expect(cubit.state.namesLoadFailed, isFalse);
+      await cubit.close();
+      await cubit.loadPlayers();
+      expect(cubit.state.namesLoadFailed, isFalse);
+    },
+  );
 }
 
 List<String> _names(int count) =>
     List.generate(count, (index) => 'player $index');
 
-class DeferredPlayersStore extends PlayersStore {
+class DeferredPlayersStore extends MemoryPlayersStore {
   final completer = Completer<List<String>>();
 
   @override
