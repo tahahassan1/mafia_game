@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia/app.dart';
+import 'package:mafia/core/di.dart';
 import 'package:mafia/core/strings_ar.dart';
 import 'package:mafia/core/widgets/app_button.dart';
 import 'package:mafia/core/widgets/app_lottie.dart';
@@ -11,7 +12,8 @@ import 'package:mafia/core/widgets/role_toggle_card.dart';
 import 'package:mafia/features/game/data/players_store.dart';
 import 'package:mafia/features/game/domain/game_session.dart';
 import 'package:mafia/features/game/domain/validation_reason.dart';
-import 'package:mafia/features/placeholder/placeholder_screen.dart';
+import 'package:mafia/features/reveal/reveal_cubit.dart';
+import 'package:mafia/features/reveal/ui/handoff_reveal_screen.dart';
 import 'package:mafia/features/roles/domain/role_catalog.dart';
 import 'package:mafia/features/setup/setup_cubit.dart';
 import 'package:mafia/features/setup/ui/game_setup_screen.dart';
@@ -51,10 +53,12 @@ void main() {
   );
 
   testWidgets(
-    'edit, delete, configure, validate, and deal to a neutral placeholder',
+    'edit, delete, configure, validate, and deal to a neutral handoff',
     (tester) async {
       final store = PlayersStore();
       final session = GameSession();
+      getIt.registerFactory<RevealCubit>(() => RevealCubit(session));
+      addTearDown(getIt.reset);
       await store.saveNames(['أحمد', 'محمد', 'علي', 'حسن']);
       final cubit = SetupCubit(store, session, Random(1));
       addTearDown(cubit.close);
@@ -94,16 +98,17 @@ void main() {
       await tester.tap(find.text(AppStrings.dealRoles));
       await tester.tap(find.text(AppStrings.dealRoles), warnIfMissed: false);
       await tester.pumpAndSettle();
-      expect(find.byType(PlaceholderScreen), findsOneWidget);
-      expect(find.text(AppStrings.dealtPlaceholder), findsOneWidget);
+      expect(find.byType(HandoffRevealScreen), findsOneWidget);
+      expect(find.text(AppStrings.handoffLabel), findsOneWidget);
       expect(session.assignments, hasLength(4));
       for (final assignment in session.assignments) {
-        expect(find.text(assignment.player.name), findsNothing);
+        expect(find.text(assignment.role.descriptionAr), findsNothing);
       }
-      expect(find.byType(BackButton), findsOneWidget);
-      await tester.tap(find.byType(BackButton));
+      expect(find.text(session.assignments.first.player.name), findsOneWidget);
+      expect(find.byType(BackButton), findsNothing);
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.byType(PlayersScreen), findsOneWidget);
+      expect(find.byType(HandoffRevealScreen), findsOneWidget);
       expect(cubit.state.players, ['محمد', 'علي', 'حسن', 'خالد']);
       expect(tester.takeException(), isNull);
     },

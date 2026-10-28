@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 
 import '../features/game/data/players_store.dart';
 import '../features/game/domain/game_session.dart';
+import '../features/reveal/reveal_cubit.dart';
 import '../features/setup/setup_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -15,4 +16,5 @@ void configureDependencies() {
   getIt.registerFactory<SetupCubit>(
     () => SetupCubit(getIt(), getIt(), getIt()),
   );
+  getIt.registerFactory<RevealCubit>(() => RevealCubit(getIt()));
 }

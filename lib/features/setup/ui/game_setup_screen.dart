@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/di.dart';
 import '../../../core/strings_ar.dart';
 import '../../../core/theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -9,7 +10,8 @@ import '../../../core/widgets/app_stepper.dart';
 import '../../../core/widgets/role_toggle_card.dart';
 import '../../../core/widgets/validation_strip.dart';
 import '../../game/domain/validation_result.dart';
-import '../../placeholder/placeholder_screen.dart';
+import '../../reveal/reveal_cubit.dart';
+import '../../reveal/ui/handoff_reveal_screen.dart';
 import '../../roles/domain/role_catalog.dart';
 import '../setup_cubit.dart';
 import '../setup_state.dart';
@@ -20,7 +22,12 @@ class GameSetupScreen extends StatelessWidget {
   void _deal(BuildContext context) {
     if (!context.read<SetupCubit>().deal()) return;
     Navigator.of(context).pushReplacement<void, void>(
-      MaterialPageRoute(builder: (_) => const PlaceholderScreen()),
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => getIt<RevealCubit>(),
+          child: const HandoffRevealScreen(),
+        ),
+      ),
     );
   }
 

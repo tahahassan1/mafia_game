@@ -19,7 +19,12 @@ abstract final class AppStrings {
   static const String decreaseMafia = 'تقليل عدد المافيا';
   static const String mafiaLimits = 'المافيا أقل من نصف عدد اللاعبين';
   static const String dealRoles = 'وزّع الأدوار';
-  static const String dealtPlaceholder = 'تم توزيع الأدوار';
+  static const String handoffLabel = 'سلّم الموبايل لـ';
+  static const String handoffInstruction =
+      'لما تستلم الموبايل، اكشف دورك لوحدك';
+  static const String revealRole = 'اكشف الدور';
+  static const String hideAndNext = 'إخفاء والتالي';
+  static const String timerPlaceholder = 'جاهزون للنقاش';
 
   static String playerCount(int count) =>
       'عدد اللاعبين: ${_inlineNumber(count)}';
