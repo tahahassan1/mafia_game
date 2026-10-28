@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/constants.dart';
+import 'core/app_locale.dart';
 import 'core/strings_ar.dart';
 import 'core/theme.dart';
 import 'features/placeholder/placeholder_screen.dart';
