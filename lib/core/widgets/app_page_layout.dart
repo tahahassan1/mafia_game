@@ -11,16 +11,19 @@ class AppPageLayout extends StatelessWidget {
     required this.content,
     required this.footer,
     this.header,
+    this.automaticallyImplyLeading = true,
   });
 
   final String title;
   final Widget content;
   final Widget footer;
   final Widget? header;
+  final bool automaticallyImplyLeading;
 
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
+      automaticallyImplyLeading: automaticallyImplyLeading,
       title: Text(title, style: AppStyles.screenTitle),
       toolbarHeight: max(
         AppSizes.minControlHeight,

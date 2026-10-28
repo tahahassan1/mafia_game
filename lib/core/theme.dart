@@ -15,6 +15,7 @@ abstract final class AppColors {
   static const Color teamMafia = brandPrimary;
   static const Color teamCivilian = ink;
   static const Color teamNeutral = Color(0xFFE3B23C);
+  static const Color sheetScrim = Color(0xCC000000);
 }
 
 abstract final class AppSpacing {
@@ -58,10 +59,14 @@ abstract final class AppSizes {
   static const double compactViewportHeight = 400;
   static const double appBarTitleHeight = 34;
   static const double emptyStateLottie = 120;
+  static const double hostSheetHeightFactor = 0.85;
+  static const double timerClockLottie = 120;
+  static const double timerStepperMinWidth = 120;
 }
 
 abstract final class AppMotion {
   static const Duration press = Duration(milliseconds: 120);
+  static const Duration sheet = Duration(milliseconds: 200);
 }
 
 abstract final class AppShadows {

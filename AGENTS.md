@@ -19,6 +19,10 @@ Flutter (Android first), `flutter_bloc` (Cubit only), `get_it`, `equatable`, `sh
 - Include project `.agents/` skills and the Gradle wrapper scripts/JAR in the repository (user approved).
 - Documentation gaps remain unresolved: `docs/TASKS.md` references missing `docs/ARCHITECTURE.md` section 10 and `docs/DESIGN_STYLE.md` section 7.1. Ask before defining those sections.
 
+## P4 approved decisions
+- Discussion timer defaults to 3 minutes and is adjustable from 00:01 to 99:59.
+- Timer expiry uses Flutter haptic feedback plus a small Android method channel (`mafia/timer_feedback`) to play the system notification sound through `RingtoneManager`. The native bridge is user-approved because Flutter's `SystemSoundType.alert` is ignored on Android. No audio assets or packages are added.
+
 ## Commands
 - Run: `flutter run`
 - Analyze: `flutter analyze` (must be clean)

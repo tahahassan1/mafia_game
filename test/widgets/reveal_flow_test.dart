@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mafia/app.dart';
 import 'package:mafia/core/assets.dart';
+import 'package:mafia/core/constants.dart';
+import 'package:mafia/core/di.dart';
 import 'package:mafia/core/strings_ar.dart';
 import 'package:mafia/core/theme.dart';
 import 'package:mafia/core/widgets/app_button.dart';
@@ -16,9 +18,22 @@ import 'package:mafia/features/reveal/ui/handoff_reveal_screen.dart';
 import 'package:mafia/features/reveal/ui/widgets/handoff_prompt.dart';
 import 'package:mafia/features/reveal/ui/widgets/reveal_role_card.dart';
 import 'package:mafia/features/roles/domain/role_catalog.dart';
-import 'package:mafia/features/timer/ui/timer_placeholder_screen.dart';
+import 'package:mafia/features/timer/timer_cubit.dart';
+import 'package:mafia/features/timer/ui/timer_screen.dart';
+
+import '../support/platform_calls.dart';
 
 void main() {
+  setUp(() {
+    getIt.registerFactory<TimerCubit>(
+      () => TimerCubit(
+        DateTime.now,
+        initialDuration: TimerLimits.defaultDuration,
+      ),
+    );
+    PlatformCalls().install();
+  });
+  tearDown(() => getIt.reset());
   testWidgets('each handoff is private and only its assignment is revealed', (
     tester,
   ) async {
@@ -70,24 +85,27 @@ void main() {
       }
     }
     await tester.pumpAndSettle();
-    expect(find.byType(TimerPlaceholderScreen), findsOneWidget);
-    expect(find.text(AppStrings.timerPlaceholder), findsOneWidget);
+    expect(find.byType(TimerScreen), findsOneWidget);
+    expect(find.text(AppStrings.timerTitle), findsOneWidget);
     expect(find.byType(HandoffRevealScreen, skipOffstage: false), findsNothing);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    expect(find.byType(TimerPlaceholderScreen), findsOneWidget);
+    expect(find.byType(TimerScreen), findsOneWidget);
     _expectNoRoles();
-    expect(find.byType(AppLottie), findsNothing);
+    expect(
+      tester.widget<AppLottie>(find.byType(AppLottie)).asset,
+      AppAssets.mafiaClockLottie,
+    );
     expect(tester.takeException(), isNull);
     semantics.dispose();
   });
 
-  testWidgets('empty session safely replaces the flow with the placeholder', (
+  testWidgets('empty session safely replaces the flow with the timer', (
     tester,
   ) async {
     final cubit = await _pumpFlow(tester, []);
     expect(cubit.state.isFinished, isTrue);
-    expect(find.byType(TimerPlaceholderScreen), findsOneWidget);
+    expect(find.byType(TimerScreen), findsOneWidget);
     expect(find.byType(HandoffRevealScreen, skipOffstage: false), findsNothing);
     _expectNoRoles();
     expect(tester.takeException(), isNull);
@@ -106,7 +124,7 @@ void main() {
     final cubit = RevealCubit(session)..reveal();
     cubit.hideAndNext();
     await _pumpFlow(tester, [], cubit: cubit);
-    expect(find.byType(TimerPlaceholderScreen), findsOneWidget);
+    expect(find.byType(TimerScreen), findsOneWidget);
     _expectNoRoles();
   });
 

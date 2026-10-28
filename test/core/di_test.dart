@@ -9,6 +9,8 @@ import 'package:mafia/features/game/domain/player.dart';
 import 'package:mafia/features/reveal/reveal_cubit.dart';
 import 'package:mafia/features/roles/domain/role_catalog.dart';
 import 'package:mafia/features/setup/setup_cubit.dart';
+import 'package:mafia/features/timer/timer_cubit.dart';
+import 'package:mafia/features/timer/timer_state.dart';
 
 void main() {
   setUp(() => getIt.reset());
@@ -62,6 +64,28 @@ void main() {
         second.currentAssignment,
         same(getIt<GameSession>().assignments.first),
       );
+      await first.close();
+      await second.close();
+    },
+  );
+
+  test(
+    'timer factories use the registered clock and three-minute default',
+    () async {
+      configureDependencies();
+      await getIt.unregister<DateTime Function()>();
+      final now = DateTime.utc(2026, 10, 28);
+      getIt.registerSingleton<DateTime Function()>(() => now);
+      final first = getIt<TimerCubit>();
+      final second = getIt<TimerCubit>();
+      expect(first, isNot(same(second)));
+      expect(first.state.duration, const Duration(minutes: 3));
+      first.start();
+      expect(
+        (first.state as TimerRunning).endAt,
+        now.add(const Duration(minutes: 3)),
+      );
+      expect(second.state, const TimerIdle(Duration(minutes: 3)));
       await first.close();
       await second.close();
     },

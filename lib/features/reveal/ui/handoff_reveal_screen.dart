@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/di.dart';
 import '../../../core/strings_ar.dart';
 import '../../../core/widgets/app_button.dart';
-import '../../timer/ui/timer_placeholder_screen.dart';
+import '../../timer/timer_cubit.dart';
+import '../../timer/ui/timer_screen.dart';
 import '../reveal_cubit.dart';
 import '../reveal_state.dart';
 import 'widgets/handoff_prompt.dart';
@@ -33,7 +35,12 @@ class _HandoffRevealScreenState extends State<HandoffRevealScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       Navigator.of(context).pushReplacement<void, void>(
-        MaterialPageRoute(builder: (_) => const TimerPlaceholderScreen()),
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<TimerCubit>(),
+            child: const TimerScreen(),
+          ),
+        ),
       );
     });
   }

@@ -1,4 +1,5 @@
 import '../features/game/domain/validation_reason.dart';
+import '../features/roles/domain/team.dart';
 import 'constants.dart';
 
 abstract final class AppStrings {
@@ -24,7 +25,32 @@ abstract final class AppStrings {
       'لما تستلم الموبايل، اكشف دورك لوحدك';
   static const String revealRole = 'اكشف الدور';
   static const String hideAndNext = 'إخفاء والتالي';
-  static const String timerPlaceholder = 'جاهزون للنقاش';
+  static const String timerTitle = 'وقت النقاش';
+  static const String minutes = 'الدقائق';
+  static const String seconds = 'الثواني';
+  static const String increaseMinutes = 'زيادة الدقائق';
+  static const String decreaseMinutes = 'تقليل الدقائق';
+  static const String increaseSeconds = 'زيادة الثواني';
+  static const String decreaseSeconds = 'تقليل الثواني';
+  static const String startTimer = 'ابدأ';
+  static const String pauseTimer = 'إيقاف مؤقت';
+  static const String resumeTimer = 'استكمال';
+  static const String restartTimer = 'ابدأ من جديد';
+  static const String resetTimer = 'إعادة ضبط';
+  static const String timerFinished = 'انتهى الوقت';
+  static const String hostRoles = 'عرض الأدوار';
+  static const String hostLongPressHint = 'اضغط مطولًا';
+  static const String hostAutoClose = 'يغلق عرض الأدوار تلقائيًا';
+
+  static String timerDigits(int seconds) =>
+      '${(seconds ~/ Duration.secondsPerMinute).toString().padLeft(2, '0')}:'
+      '${seconds.remainder(Duration.secondsPerMinute).toString().padLeft(2, '0')}';
+
+  static String teamLabel(Team team) => switch (team) {
+    Team.mafia => 'المافيا',
+    Team.civilian => 'المدنيون',
+    Team.neutral => 'محايد',
+  };
 
   static String playerCount(int count) =>
       'عدد اللاعبين: ${_inlineNumber(count)}';

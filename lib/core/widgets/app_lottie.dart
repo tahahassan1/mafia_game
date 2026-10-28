@@ -10,12 +10,14 @@ class AppLottie extends StatelessWidget {
     this.size = AppSizes.lottieDefault,
     this.controller,
     this.fit = BoxFit.contain,
+    this.onLoaded,
   });
 
   final String asset;
   final double size;
   final Animation<double>? controller;
   final BoxFit fit;
+  final void Function(LottieComposition)? onLoaded;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class AppLottie extends StatelessWidget {
         repeat: true,
         fit: fit,
         alignment: Alignment.center,
+        onLoaded: onLoaded,
         errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
       ),
     );
